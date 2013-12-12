@@ -1,10 +1,11 @@
 var inputBox = document.querySelector('#newTodo');
 var listContainer = document.querySelector('#todoList');
 var installButton = document.querySelector('#install');
+var imageButton = document.querySelector('#imageTodo');
 var manifestUrl = location.origin + '/manifest.webapp';
 
 function remove(element) {
-  element.parentElement.removeChild(element)
+  element.parentElement.removeChild(element);
 }
 
 if (navigator.mozApps) {
@@ -28,9 +29,31 @@ inputBox.addEventListener('keypress', function addTodo(event) {
 
 listContainer.addEventListener('click', function markTodo(event) {
   var listElement = event.target;
-  listContainer.removeChild(listElement);
+  remove(listElement);
 }, false);
 
 installButton.addEventListener('click', function() {
   var installRequest = navigator.mozApps.install(manifestUrl);
+}, false);
+
+imageButton.addEventListener('click', function() {
+  var activity = new MozActivity({
+    name: 'pick',
+    data: {
+      type: 'image/jpeg'
+    }
+  });
+  activity.onsuccess = function() {
+    var picture = this.result;
+    var reader = new FileReader();
+    reader.readAsDataURL(picture.blob);
+    reader.onloadend = function() {
+      var listElement = document.createElement('li');
+      var image = document.createElement('img');
+      image.src = reader.result;
+      image.height = 80;
+      listElement.appendChild(image);
+      listContainer.appendChild(listElement);
+    };
+  };
 }, false);
